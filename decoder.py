@@ -1,7 +1,7 @@
 from enum import Enum
 
 
-insn_bytes = 0xe083c13c
+insn_bytes = 0x48010b9b
 
 
 class InsnVariants(Enum):
@@ -75,6 +75,18 @@ def decode_ldur(insn: int):
     print(f"LDUR: Size: {size}, Opcode: {opc} ({variant}), Imm9: {imm9}, Rn: {rn}, Rt: {rt}")
 
 
+def decode_madd(insn: int):
+    sf = extract_bits(insn, 31, 31)
+    rm = ARM64Registers(extract_bits(insn, 20, 16))
+    ra = ARM64Registers(extract_bits(insn, 14, 10))
+    rn = ARM64Registers(extract_bits(insn, 9, 5))
+    rd = ARM64Registers(extract_bits(insn, 4, 0))
+
+    variant = InsnVariants.VAR_032 if sf == 0b0 else InsnVariants.VAR_064
+
+    print(f"MADD: SF: {sf} ({variant}), rd: {rd}, rn: {rn}, rm: {rm}, ra: {ra}")
+
+
 def decode_insn(insn: int):
     # convert insn to little endian
     insn = little_endian(insn)
@@ -91,12 +103,17 @@ def decode_insn(insn: int):
 
 
 instruction_masks = [
-    0b00111111011000000000110000000000
+    0b00111111011000000000110000000000,
+    0b01111111111000001000000000000000
 ]
 instructions = {
     0b00111100010000000000000000000000: {
         "mnemonic": "ldur",
         "decode_func": decode_ldur
+    },
+    0b00011011000000000000000000000000: {
+        "mnemonic": "madd",
+        "decode_func": decode_madd
     }
 }
 
