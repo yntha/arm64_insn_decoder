@@ -101,6 +101,8 @@ def decode_insn(insn: int):
 
         instruction["decode_func"](insn)
 
+        break
+
 
 instruction_masks = [
     0b00111111011000000000110000000000,
